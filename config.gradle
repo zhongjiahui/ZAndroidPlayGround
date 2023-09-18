@@ -1,0 +1,41 @@
+project.ext {
+
+    isRelease = true
+
+    app_android = [
+            compileSdk      : 34,
+            minSdk          : 24,
+            targetSdk       : 34,
+            versionCode     : 1,
+            versionName     : "1.0.0",
+            testInstrumentationRunner: "androidx.test.runner.AndroidJUnitRunner"
+    ]
+
+    app_namespace = [
+            "app"   : "com.zjh.playground",
+            "home"  : "com.zjh.home",
+            "news"  : "com.zjh.news",
+            "user"  : "com.zjh.user"
+    ]
+
+    app_applicationId = [
+            "app"   : "com.zjh.playground",
+            "home"  : "com.zjh.home",
+            "news"  : "com.zjh.news",
+            "user"  : "com.zjh.user"
+    ]
+
+    // 定义依赖项，体现真实开发项目的过程
+    app_dependencies = [
+            "appcompat"         : 'androidx.appcompat:appcompat:1.6.1',
+            "constraint"        : 'androidx.constraintlayout:constraintlayout:1.9.0',
+            "material"          : 'com.google.android.material:material:1.9.0',
+            "arouter"           : 'com.alibaba:arouter-api:1.5.2',
+            "rxjava"            : 'io.reactivex:rxjava:1.3.0',
+            "rxandroid"         : 'io.reactivex:rxandroid:1.2.0',
+            "retrofit"          : "com.squareup.retrofit2:retrofit:2.9.0",
+            "converter-gson"    : 'com.squareup.retrofit2:converter-gson:2.4.0',
+            "adapter-rxjava"    : 'com.squareup.retrofit2:adapter-rxjava:2.4.0',
+    ]
+
+}

@@ -1,0 +1,196 @@
+project.ext {
+    //是否允许module单独调试
+    isRelease = true
+
+    //基础信息配置
+    compileSdk = 34
+    minSdk = 24
+    targetSdk = 34
+    versionCode = 1
+    versionName = "1.0.0"
+
+    app_namespace = [
+            "app"   : "com.zjh.playground",
+            "home"  : "com.zjh.home",
+            "news"  : "com.zjh.news",
+            "user"  : "com.zjh.user"
+    ]
+
+    app_applicationId = [
+            "app"   : "com.zjh.playground",
+            "home"  : "com.zjh.home",
+            "news"  : "com.zjh.news",
+            "user"  : "com.zjh.user"
+    ]
+
+    //设置app配置
+    setAppDefaultConfig = {
+        extension ->
+            //指定为application
+            extension.apply plugin: 'com.android.application'
+            extension.description "app"
+
+            //公共的apply 主要是用于三方库
+            extension.apply plugin: 'kotlin-android'
+            extension.apply plugin: 'kotlin-parcelize'
+            extension.apply plugin: 'kotlin-kapt'
+
+            appImplementation = "app"
+            //设置项目的android
+            setAppAndroidConfig extension.android
+            //设置项目的三方库依赖
+            setDependencies extension.dependencies
+
+    }
+
+    //设置application 公共的android配置
+    setAppAndroidConfig = {
+        extension ->
+            extension.namespace project.ext.app_namespace.app
+            extension.compileSdk project.ext.compileSdk
+
+            extension.defaultConfig {
+                applicationId project.ext.app_applicationId.app
+                minSdk project.ext.minSdk
+                targetSdk project.ext.targetSdk
+                versionCode project.ext.versionCode
+                versionName project.ext.versionName
+                extension.flavorDimensions "versionCode"
+                testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+                javaCompileOptions {
+                    annotationProcessorOptions {
+                        arguments = [AROUTER_MODULE_NAME: project.getName()]
+                    }
+                }
+            }
+
+            extension.compileOptions {
+                sourceCompatibility JavaVersion.VERSION_1_8
+                targetCompatibility JavaVersion.VERSION_1_8
+            }
+            extension.kotlinOptions {
+                jvmTarget = '1.8'
+            }
+
+            extension.buildFeatures.dataBinding = true
+    }
+
+    //动态改变，用于单模块调试
+    setAppOrLibDefaultConfig = {
+        extension ->
+            if (project.ext.isRelease) {
+                extension.apply plugin: 'com.android.library'
+                extension.description "lib"
+            } else {
+                extension.apply plugin: 'com.android.application'
+                extension.description "app"
+            }
+            extension.apply plugin: 'kotlin-android'
+            extension.apply plugin: 'kotlin-parcelize'
+            extension.apply plugin: 'kotlin-kapt'
+
+            appImplementation = project.name
+
+            //设置通用Android配置
+            setAppOrLibAndroidConfig extension.android
+            //设置通用依赖配置
+            setDependencies extension.dependencies
+    }
+
+    //设置通用的 android配置（可作为project单独调试）
+    setAppOrLibAndroidConfig = {
+        extension ->
+            if(appImplementation = "compontent_home"){
+                extension.namespace project.ext.app_namespace.home
+            }else if(appImplementation = "compontent_news"){
+                extension.namespace project.ext.app_namespace.news
+            }else if(appImplementation = "compontent_user"){
+                extension.namespace project.ext.app_namespace.user
+            }
+            extension.compileSdk project.ext.compileSdk
+
+            extension.defaultConfig {
+                if (!project.ext.isRelease) {
+                    if(appImplementation = "compontent_home"){
+                        applicationId project.ext.app_applicationId.home
+                    }else if(appImplementation = "compontent_news"){
+                        applicationId project.ext.app_applicationId.news
+                    }else if(appImplementation = "compontent_user"){
+                        applicationId project.ext.app_applicationId.user
+                    }
+                }
+
+                minSdk project.ext.minSdk
+                targetSdk project.ext.targetSdk
+                versionCode project.ext.versionCode
+                versionName project.ext.versionName
+                extension.flavorDimensions "versionCode"
+                testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+                //ARouter 编译生成路由
+                javaCompileOptions {
+                    annotationProcessorOptions {
+                        arguments = [AROUTER_MODULE_NAME: project.getName()]
+                    }
+                }
+            }
+
+            //使用的jdk版本
+            extension.compileOptions {
+                sourceCompatibility JavaVersion.VERSION_1_8
+                targetCompatibility JavaVersion.VERSION_1_8
+            }
+            extension.kotlinOptions {
+                jvmTarget = '1.8'
+            }
+
+            //动态改变清单文件资源指向
+            extension.sourceSets {
+                main {
+                    if (project.ext.isRelease) {
+                        manifest.srcFile 'src/main/AndroidManifest.xml'
+                        java {
+                            // release 时 debug 目录下文件不需要合并到主工程
+                            exclude '**/debug/**'
+                        }
+                    } else {
+                        manifest.srcFile 'src/main/debug/AndroidManifest.xml'
+                    }
+                }
+            }
+
+    }
+
+    //公用的三方库依赖，慎重引入，主要引入基础库依赖
+    setDependencies = {
+        extension ->
+            extension.implementation fileTree(dir: 'libs', include: ['*.jar'])
+            extension.implementation "org.jetbrains.kotlin:kotlin-stdlib:1.3.72"
+            //extension.implementation 'androidx.core:core-ktx:1.3.1'
+            extension.implementation 'androidx.appcompat:appcompat:1.6.1'
+            extension.implementation 'com.google.android.material:material:1.9.0'
+            extension.implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+            extension.testImplementation 'junit:junit:4.13.2'
+            extension.androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+            extension.androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+            extension.implementation 'com.alibaba:arouter-api:1.5.2'//ARouter依赖
+            extension.annotationProcessor 'com.alibaba:arouter-compiler:1.5.2'//ARouter依赖
+            if(appImplementation != "lib_common"){
+                //common做为中间层，所有的Module都要依赖
+                extension.implementation extension.project(path: ':lib_common')
+            }
+            //针对每个Module单独进行依赖
+            switch (appImplementation) {
+                case "app":
+                    extension.implementation extension.project(path: ':component_home')
+                    extension.implementation extension.project(path: ':component_user')
+                    break
+                case "component_home":
+
+                    break
+                case "component_user"://common组件是一个中间层，所有的组件都需要依赖此组件，公共的依赖便可放到这里
+
+                    break
+            }
+    }
+}

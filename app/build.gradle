@@ -1,0 +1,67 @@
+plugins {
+    id 'com.android.application'
+}
+
+def app_android = getRootProject().ext.app_android
+def app_dependencies = rootProject.ext.app_dependencies
+
+android {
+    namespace app_namespace.app
+    compileSdk app_android.compileSdk
+
+    defaultConfig {
+        applicationId app_applicationId.app
+        minSdk app_android.minSdk
+        targetSdk app_android.targetSdk
+        versionCode app_android.versionCode
+        versionName app_android.versionName
+
+        testInstrumentationRunner app_android.testInstrumentationRunner
+
+        buildConfigField("boolean", "isRelease", String.valueOf(isRelease))
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [AROUTER_MODULE_NAME: project.getName()]
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildFeatures {
+        dataBinding true
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+    // 循环引入第三方库
+    app_dependencies.each {k, v ->
+        // if (k != "aa" && v != "cc") {}
+        implementation v
+    }
+    annotationProcessor 'com.alibaba:arouter-compiler:1.5.2'
+
+    if (isRelease) {
+        implementation project(":component_home")
+        implementation project(":component_news")
+        implementation project(":component_user")
+    }
+    implementation project(':lib_common')
+
+}

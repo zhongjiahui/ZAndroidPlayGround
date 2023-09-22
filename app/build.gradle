@@ -18,6 +18,8 @@ android {
 
         testInstrumentationRunner app_android.testInstrumentationRunner
 
+        resConfigs "zh-rCN"
+
         buildConfigField("boolean", "isRelease", String.valueOf(isRelease))
 
         javaCompileOptions {
@@ -28,8 +30,13 @@ android {
     }
 
     buildTypes {
-        release {
+        debug {
             minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        release {
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

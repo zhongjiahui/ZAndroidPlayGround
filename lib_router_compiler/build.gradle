@@ -1,33 +1,22 @@
 plugins {
-    id 'com.android.library'
-}
-
-android {
-    namespace 'com.example.lib_router_compiler'
-    compileSdk 33
-
-    defaultConfig {
-        minSdk 24
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles "consumer-rules.pro"
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
+    id 'java-library'
 }
 
 dependencies {
 
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.10.0'
+    compileOnly 'com.google.auto.service:auto-service:1.0-rc4'
+    annotationProcessor 'com.google.auto.service:auto-service:1.0-rc4'
 
+    implementation "com.squareup:javapoet:1.9.0"
+
+    implementation project(':lib_router_annotation')
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_7
+    targetCompatibility = JavaVersion.VERSION_1_7
 }

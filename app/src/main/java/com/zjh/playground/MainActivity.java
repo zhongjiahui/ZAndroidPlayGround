@@ -8,8 +8,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.zjh.common.router.NewsRouter;
+import com.zjh.common.router.UserRouter;
 import com.zjh.common.util.DensityUtil;
 import com.zjh.common.util.RecycleViewDivider;
+import com.zjh.router.api.Router;
 
 import java.util.ArrayList;
 
@@ -63,6 +65,6 @@ public class MainActivity extends AppCompatActivity implements IMainNavigation {
 
     @Override
     public void navigationToUser() {
-
+        Router.getInstance().build(UserRouter.USER).navigation(this);
     }
 }

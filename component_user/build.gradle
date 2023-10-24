@@ -21,9 +21,15 @@ android {
 
         buildConfigField("boolean", "isRelease", String.valueOf(isRelease))
 
+//        javaCompileOptions {
+//            annotationProcessorOptions {
+//                arguments = [AROUTER_MODULE_NAME: project.getName()]
+//            }
+//        }
+
         javaCompileOptions {
             annotationProcessorOptions {
-                arguments = [AROUTER_MODULE_NAME: project.getName()]
+                arguments = [moduleName: project.getName(), packageNameForAPT: "com.zjh.router.routes"]
             }
         }
     }
@@ -70,7 +76,13 @@ dependencies {
     // 循环引入第三方库
     app_dependencies.each {k, v ->implementation v}
 
-    annotationProcessor 'com.alibaba:arouter-compiler:1.5.2'
+    implementation project(':lib_common')
+
+    //annotationProcessor 'com.alibaba:arouter-compiler:1.5.2'
+
+    implementation project(':lib_router_annotation')
+    annotationProcessor project(':lib_router_compiler')
+
 }
 
 
